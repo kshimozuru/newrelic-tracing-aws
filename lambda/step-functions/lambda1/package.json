@@ -1,0 +1,9 @@
+{
+  "name": "step-function-lambda1",
+  "version": "1.0.0",
+  "description": "Step Functions Lambda 1 for New Relic tracing",
+  "main": "index.js",
+  "dependencies": {
+    "newrelic": "^11.0.0"
+  }
+}

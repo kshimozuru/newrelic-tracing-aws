@@ -1,0 +1,13 @@
+{
+  "name": "batch-job",
+  "version": "1.0.0",
+  "description": "AWS Batch job for New Relic tracing",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r newrelic index.js"
+  },
+  "dependencies": {
+    "newrelic": "^11.0.0",
+    "aws-sdk": "^2.1400.0"
+  }
+}

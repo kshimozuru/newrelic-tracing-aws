@@ -1,0 +1,63 @@
+@startuml AWS_OpenTelemetry_Architecture
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/General/Users.puml
+!include AWSPuml/Groups/AWSCloud.puml
+!include AWSPuml/Groups/Generic.puml
+!include AWSPuml/ApplicationIntegration/APIGateway.puml
+!include AWSPuml/Compute/LambdaLambdaFunction.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/ApplicationIntegration/SimpleQueueService.puml
+!include AWSPuml/Containers/ElasticContainerService.puml
+!include AWSPuml/ApplicationIntegration/StepFunctions.puml
+!include AWSPuml/DeveloperTools/XRay.puml
+!include AWSPuml/AWSSimplified.puml
+
+left to right direction
+title Architecture
+
+skinparam shadowing false
+hide stereotype
+skinparam linetype ortho
+skinparam rectangle {
+    BackgroundColor AWS_BG_COLOR
+    BorderColor transparent
+}
+
+!procedure $traceflow($step)
+<back:green><color:white><b> $step </b></color></back>
+!endprocedure
+
+rectangle "$UsersIMG()\nクライアントアプリケーション" as client {
+    rectangle "$EC2IMG()\nEC2\nShell" as shell
+}
+
+AWSCloudGroup(cloud) {
+    GenericGroup(services, Serverless Services) {
+        rectangle "$APIGatewayIMG()\nAPI Gateway\nREST API" as apigw
+        rectangle "$LambdaLambdaFunctionIMG()\nLambda Function\nBusiness Logic" as lambda1
+        rectangle "$SimpleQueueServiceIMG()\nSQS Queue\nMessage Queue" as sqs
+        rectangle "$ElasticContainerServiceIMG()\nAWS Batch (ECS)\nBatch Processing" as batch
+        rectangle "$StepFunctionsIMG()\nStep Functions\nWorkflow" as stepfunc
+    }
+
+}
+
+' フロー接続
+shell --> apigw : $traceflow("1") HTTP Request\n(OpenTelemetry)
+apigw --> lambda1 : $traceflow("2") Invoke\n(New Relic)
+lambda1 --> sqs : $traceflow("3") Send Message\n(New Relic)
+sqs --> batch : $traceflow("4") Trigger\n(New Relic)
+batch --> stepfunc : $traceflow("5") Call Step Functions\n(New Relic)
+
+' note top of apigw
+'     HTTP HeaderにTrace ID/Span ID を設定"
+' end note
+
+' note top of services
+'     分散トレーシング対応
+'     - OpenTelemetry Context Propagation
+'     - Trace ID/Span ID の継承
+'     - 各サービス間のトレース連携
+' end note
+@enduml

@@ -1,0 +1,10 @@
+{
+  "name": "sqs-processor",
+  "version": "1.0.0",
+  "description": "SQS processor for New Relic tracing",
+  "main": "index.js",
+  "dependencies": {
+    "newrelic": "^11.0.0",
+    "aws-sdk": "^2.1400.0"
+  }
+}
